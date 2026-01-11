@@ -43,7 +43,6 @@
     <script type="text/babel" data-type="module">
         import React, { useState, useEffect, useRef } from 'react';
         import { createRoot } from 'react-dom/client';
-        // Updated imports based on your final version
         import { Heart, Clock, Send, Moon, Sun, MapPin, HandMetal, Gem, Fingerprint, X, Zap, Anchor, Feather, Crown, Phone, Star, Bike, Eye, Cloud, Image as ImageIcon, Briefcase, DollarSign, Plane } from 'lucide-react';
 
         /* --- CSS STYLES --- */
@@ -243,13 +242,9 @@
                      This is a digital archive of our universe. <br/>
                      <span className="text-pink-400 font-bold uppercase tracking-widest text-xs">Disclaimer</span> <br/> 
                      Read deeply. Every button holds a memory.
-                    <br />
-
-    <span className="block italic text-gray-300 mt-2">
-      from yours only ~ Nalin
-    </span>
-
-<br />
+                     <br />
+                     <br />
+                     <span className="block italic text-gray-300 mt-2">from yours only ~ Nalin</span>
                   </p>
                 </div>
                 <p className="mt-16 font-hand text-pink-300 text-2xl animate-bounce tracking-widest">Scroll Down to Begin</p>
@@ -518,6 +513,7 @@
                   </div>
                 ) : (
                   <>
+                    {/* UPDATED: Changed fixed to absolute to prevent time sticking on screen */}
                     <div className="absolute top-24 bg-black/40 backdrop-blur-md px-6 py-2 rounded-full border border-white/20 font-mono text-3xl font-bold shadow-xl z-20">
                       {displayTime}
                     </div>
