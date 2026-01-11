@@ -1,0 +1,920 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Dear Himanshi</title>
+    
+    <!-- 1. Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- 2. Configure Import Map for React & Icons -->
+    <script type="importmap">
+    {
+      "imports": {
+        "react": "https://esm.sh/react@18.2.0",
+        "react-dom/client": "https://esm.sh/react-dom@18.2.0/client",
+        "lucide-react": "https://esm.sh/lucide-react@0.263.1"
+      }
+    }
+    </script>
+    
+    <!-- 3. Load Babel for JSX support -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+    <style>
+        body { margin: 0; background-color: black; }
+        /* Loader fallback */
+        #root:empty::before {
+            content: 'Loading Universe...';
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            color: white;
+            font-family: sans-serif;
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <!-- 4. Your Application Code -->
+    <script type="text/babel" data-type="module">
+        import React, { useState, useEffect, useRef } from 'react';
+        import { createRoot } from 'react-dom/client';
+        // Updated imports based on your final version
+        import { Heart, Clock, Send, Moon, Sun, MapPin, HandMetal, Gem, Fingerprint, X, Zap, Anchor, Feather, Crown, Phone, Star, Bike, Eye, Cloud, Image as ImageIcon, Briefcase, DollarSign, Plane } from 'lucide-react';
+
+        /* --- CSS STYLES --- */
+        const customStyles = `
+          @import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Montserrat:wght@300;400;600&family=Playfair+Display:ital,wght@1,500&display=swap');
+
+          .font-hand { font-family: 'Dancing Script', cursive; }
+          .font-body { font-family: 'Montserrat', sans-serif; }
+          .font-head { font-family: 'Playfair Display', serif; }
+
+          .scroll-container {
+            scroll-snap-type: y mandatory;
+            overflow-y: scroll;
+            height: 100vh;
+            scroll-behavior: smooth;
+            user-select: none;
+            -webkit-user-select: none;
+          }
+
+          .section {
+            scroll-snap-align: start;
+            height: 100vh;
+            width: 100%;
+            overflow: hidden;
+            position: relative;
+          }
+
+          /* Animations */
+          @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+          .fade-in { animation: fadeIn 1s ease-out forwards; }
+          
+          @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+          }
+          .animate-float { animation: float 3s ease-in-out infinite; }
+
+          .typing-cursor::after {
+            content: '|';
+            animation: blink 1s step-end infinite;
+          }
+          @keyframes blink { 50% { opacity: 0; } }
+
+          /* Red Room Embers */
+          @keyframes rise {
+            0% { bottom: -10px; opacity: 0; transform: translateX(0); }
+            50% { opacity: 1; }
+            100% { bottom: 100vh; opacity: 0; transform: translateX(-20px); }
+          }
+          .ember {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: #ef4444;
+            border-radius: 50%;
+            box-shadow: 0 0 10px #ef4444;
+            animation: rise 10s linear infinite;
+          }
+
+          /* SIDE SCROLLING WORLD ANIMATIONS */
+          @keyframes scrollLeft {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); } 
+          }
+          
+          .bg-scroll-fast {
+            animation: scrollLeft 2s linear infinite;
+            animation-play-state: paused;
+          }
+          .bg-scroll-medium {
+            animation: scrollLeft 20s linear infinite; /* Slower for more detail */
+            animation-play-state: paused;
+          }
+          .bg-scroll-slow {
+            animation: scrollLeft 40s linear infinite;
+            animation-play-state: paused;
+          }
+          
+          .running .bg-scroll-fast, 
+          .running .bg-scroll-medium, 
+          .running .bg-scroll-slow {
+            animation-play-state: running;
+          }
+
+          /* Bike Animations */
+          @keyframes vibrate {
+            0% { transform: translate(0, 0); }
+            25% { transform: translate(1px, 1px); }
+            50% { transform: translate(-1px, 0); }
+            75% { transform: translate(0, -1px); }
+            100% { transform: translate(0, 0); }
+          }
+          
+          @keyframes suspension {
+            0% { transform: translateY(0); }
+            50% { transform: translateY(3px); }
+            100% { transform: translateY(0); }
+          }
+          
+          .engine-on { 
+            animation: vibrate 0.1s infinite, suspension 0.6s ease-in-out infinite; 
+          }
+          
+          /* Wheel Spin */
+          @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+          }
+          .running .wheel { animation: spin 0.5s linear infinite; }
+
+          /* Scan Animation */
+          @keyframes scan {
+            0% { top: 0%; opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { top: 100%; opacity: 0; }
+          }
+          .scan-line {
+            position: absolute;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: #ec4899;
+            box-shadow: 0 0 10px #ec4899;
+            animation: scan 1.5s linear infinite;
+          }
+          
+          /* Floating Words - Pearl Angel */
+          @keyframes floatUpFade {
+            0% { transform: translateY(0) scale(1); opacity: 0; }
+            20% { opacity: 1; transform: translateY(-20px) scale(1.2); }
+            100% { transform: translateY(-150px) scale(1.5); opacity: 0; }
+          }
+          .floating-word {
+            position: absolute;
+            animation: floatUpFade 4s ease-out forwards;
+            pointer-events: none;
+            font-weight: bold;
+            color: #ec4899; 
+            text-shadow: 2px 2px 4px rgba(255,255,255,0.8);
+            font-family: 'Playfair Display', serif;
+            font-size: 2rem;
+            z-index: 50;
+          }
+
+          /* Soft Float for Background Icons */
+          @keyframes softFloat {
+            0%, 100% { transform: translateY(0); opacity: 0.3; }
+            50% { transform: translateY(-15px); opacity: 0.6; }
+          }
+          .soft-anim { animation: softFloat 4s ease-in-out infinite; }
+          
+          /* Added Helper Classes needed for Animations */
+          .animate-fade-in-up { animation: fadeIn 1s ease-out forwards; }
+          .animate-pop-in { animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
+          @keyframes popIn { 
+            0% { transform: scale(0.8); opacity: 0; } 
+            100% { transform: scale(1); opacity: 1; } 
+          }
+          .animate-beat { animation: beat 1s infinite; }
+          @keyframes beat {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+          }
+          .animate-spin-slow { animation: spin 10s linear infinite; }
+        `;
+
+        // --- COMPONENTS ---
+
+        // 1. Intro Page
+        const Intro = () => (
+          <div className="section bg-black text-white flex flex-col items-center justify-center p-6 text-center relative overflow-hidden">
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_#1a1a2e_0%,_#000000_100%)]"></div>
+            <div className="absolute top-10 right-10 w-24 h-24 rounded-full bg-white blur-[2px] shadow-[0_0_60px_rgba(255,255,255,0.6)] opacity-90 animate-float"></div>
+            <div className="absolute inset-0 pointer-events-none">
+               {[...Array(60)].map((_, i) => (
+                 <div key={i} className="absolute bg-white rounded-full animate-pulse" 
+                      style={{
+                        top: `${Math.random() * 100}%`, 
+                        left: `${Math.random() * 100}%`, 
+                        width: Math.random() * 3 + 1 + 'px', 
+                        height: Math.random() * 3 + 1 + 'px',
+                        opacity: Math.random() * 0.7 + 0.3,
+                        animationDuration: `${Math.random() * 3 + 2}s`,
+                        boxShadow: '0 0 8px rgba(255, 255, 255, 0.8)'
+                      }} 
+                 />
+               ))}
+            </div>
+            <div className="z-10 animate-fade-in-up flex flex-col items-center">
+                <Heart className="w-20 h-20 text-pink-500 mb-8 animate-pulse filter drop-shadow-[0_0_15px_rgba(236,72,153,0.8)]" fill="currentColor" />
+                <h1 className="font-head text-6xl md:text-8xl mb-6 bg-clip-text text-transparent bg-gradient-to-r from-pink-200 via-purple-200 to-pink-200 drop-shadow-2xl">
+                    My Dear Himanshi
+                </h1>
+                <div className="bg-white/5 backdrop-blur-md p-8 rounded-2xl border border-white/10 max-w-lg mx-auto shadow-2xl hover:bg-white/10 transition duration-500">
+                  <p className="font-body text-gray-200 text-lg leading-relaxed tracking-wide">
+                     This is a digital archive of our universe. <br/>
+                     <span className="text-pink-400 font-bold uppercase tracking-widest text-xs">Disclaimer</span> <br/> 
+                     Read deeply. Every button holds a memory.
+                    <span className="italic text-gray-300">
+      from yours only ~ Nalin
+    </span>
+                  </p>
+                </div>
+                <p className="mt-16 font-hand text-pink-300 text-2xl animate-bounce tracking-widest">Scroll Down to Begin</p>
+            </div>
+          </div>
+        );
+
+        // 2. Hinge Story
+        const HingeStory = () => {
+          const [step, setStep] = useState(0); 
+          const [typedMessage, setTypedMessage] = useState("");
+          const fullMessage = "You won’t believe it, but I’ve been waiting for you like crazy. Used all my likes & even my rose… then saw you and thought She’s the one I’d uninstall for. Been keeping the app open just so I don’t miss you. Now let's see";
+          const [time, setTime] = useState("23:30");
+
+          const handleLike = () => setStep(1);
+
+          const startWait = () => {
+            setStep(2);
+            let h = 23, m = 30;
+            const interval = setInterval(() => {
+              m += 5;
+              if (m >= 60) { m = 0; h++; }
+              if (h >= 25) h = 1;
+              const tStr = `${h === 24 ? '00' : h < 10 ? '0'+h : h}:${m < 10 ? '0'+m : m}`;
+              setTime(tStr);
+              if (h === 1 && m === 0) {
+                clearInterval(interval);
+                startDrafting();
+              }
+            }, 50);
+          };
+
+          const startDrafting = () => {
+            setStep(3);
+            let index = 0;
+            const interval = setInterval(() => {
+              setTypedMessage(fullMessage.slice(0, index + 1));
+              index++;
+              if (index === fullMessage.length) {
+                clearInterval(interval);
+              }
+            }, 30);
+          };
+
+          return (
+            <div className="section bg-gray-100 flex flex-col items-center justify-center p-4 relative">
+              {step === 0 && (
+                <div className="w-80 h-[500px] bg-white rounded-3xl shadow-2xl overflow-hidden relative border-8 border-gray-200 animate-fade-in-up">
+                   <div className="w-full h-3/4 bg-gray-300 flex items-center justify-center relative">
+                      <Gem className="w-20 h-20 text-white opacity-50" />
+                      <div className="absolute bottom-4 left-4 text-white">
+                        <h2 className="font-bold text-3xl shadow-sm">Himanshi, 22</h2>
+                        <p className="text-sm opacity-90">Pearl Angel</p>
+                      </div>
+                   </div>
+                   <div className="p-4 flex justify-center items-center h-1/4">
+                     <button onClick={handleLike} className="bg-white border-2 border-red-500 rounded-full p-4 hover:bg-red-50 transition transform hover:scale-110 shadow-lg group">
+                        <Heart className="w-8 h-8 text-red-500 group-hover:fill-current" />
+                     </button>
+                   </div>
+                </div>
+              )}
+
+              {(step === 1 || step === 2) && (
+                <div className="absolute inset-0 bg-black/60 backdrop-blur-sm flex flex-col items-center justify-center z-20">
+                   <div className="bg-white p-8 rounded-2xl text-center max-w-xs shadow-2xl animate-pop-in">
+                     <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <X className="w-8 h-8 text-red-500" />
+                     </div>
+                     <h3 className="font-bold text-xl text-gray-800">Out of Likes!</h3>
+                     <p className="text-gray-500 mb-6">Refill scheduled for 01:00 AM.</p>
+                     {step === 1 ? (
+                       <button onClick={startWait} className="bg-gray-800 text-white px-6 py-3 rounded-full font-bold hover:bg-black transition">
+                         Wait for Her
+                       </button>
+                     ) : (
+                       <div className="text-4xl font-mono font-bold text-purple-600 animate-pulse">{time}</div>
+                     )}
+                   </div>
+                </div>
+              )}
+
+              {step === 3 && (
+                <div className="w-full max-w-md bg-white rounded-2xl shadow-xl p-6 z-10 animate-fade-in-up">
+                   <div className="flex items-center gap-3 mb-4 border-b pb-2">
+                     <div className="w-10 h-10 bg-pink-100 rounded-full flex items-center justify-center"><Heart className="w-5 h-5 text-pink-500" /></div>
+                     <span className="font-bold text-gray-700">Sending Rose Message...</span>
+                   </div>
+                   <div className="bg-gray-50 p-4 rounded-xl border border-gray-200 min-h-[150px]">
+                     <p className="font-body text-gray-700 typing-cursor">{typedMessage}</p>
+                   </div>
+                   {typedMessage.length === fullMessage.length && (
+                     <button onClick={() => setStep(4)} className="w-full mt-4 bg-purple-600 text-white py-3 rounded-xl font-bold shadow-lg hover:bg-purple-700 transition">
+                       Send Now
+                     </button>
+                   )}
+                </div>
+              )}
+
+              {(step === 4 || step === 5) && (
+                <div className="absolute inset-0 bg-gradient-to-br from-purple-600 to-pink-500 flex flex-col items-center justify-center z-30 text-white animate-fade-in">
+                   <div className="relative mb-8">
+                     <div className="absolute inset-0 bg-white rounded-full opacity-20 animate-ping"></div>
+                     <Send className="w-24 h-24 text-white drop-shadow-lg transform -rotate-12" />
+                   </div>
+                   <h2 className="font-head text-5xl mb-4 font-bold">Sending Hope...</h2>
+                   <div className="flex gap-2 items-center bg-white/20 px-6 py-2 rounded-full backdrop-blur-md">
+                     <span className="text-2xl">🤞</span>
+                     <p className="font-body font-semibold">Fingers Crossed for a Match</p>
+                   </div>
+                </div>
+              )}
+            </div>
+          );
+        };
+
+        // 3. The Chase
+        const TheChase = () => {
+          const [chatStep, setChatStep] = useState(0);
+          const [hasStarted, setHasStarted] = useState(false);
+          const containerRef = useRef(null);
+
+          const chats = [
+            { id: 1, text: "What are you seeking here?", side: "right", delay: 500 },
+            { id: 2, text: "Just exploring. Looking for friendship.", side: "left", delay: 1500 },
+            { id: 3, text: "💔 (Turned off)", type: "thought", delay: 2500 },
+            { id: 4, text: "I'm looking for something long-term. A real partner.", side: "right", delay: 3500 },
+            { id: 5, text: "Can I get your Instagram?", side: "right", delay: 5000 },
+            { id: 6, text: "I'll add you.", side: "left", delay: 6000 },
+            { id: 7, text: "Waiting for request...", type: "system", delay: 7500 },
+            { id: 8, text: "Still waiting...", type: "system", delay: 9000 },
+            { id: 9, text: "Let's connect to call?", side: "right", delay: 10500 },
+            { id: 10, text: "Here: +91 XXXXX XXXXX", side: "left", delay: 12000 }, 
+          ];
+
+          useEffect(() => {
+            const observer = new IntersectionObserver((entries) => {
+              if (entries[0].isIntersecting && !hasStarted) {
+                setHasStarted(true);
+                chats.forEach((chat) => {
+                  setTimeout(() => setChatStep(chat.id), chat.delay);
+                });
+              }
+            }, { threshold: 0.5 });
+            
+            if (containerRef.current) observer.observe(containerRef.current);
+            return () => observer.disconnect();
+          }, [hasStarted]);
+
+          const handleNextPage = () => {
+            const nextSection = document.getElementById('section-call');
+            if (nextSection) {
+              nextSection.scrollIntoView({ behavior: 'smooth' });
+            }
+          };
+
+          return (
+            <div ref={containerRef} className="section bg-slate-50 flex flex-col items-center p-6 relative">
+              <h2 className="font-head text-3xl text-gray-800 mt-8 mb-4">The Chase</h2>
+              <div className="w-full max-w-md flex-1 overflow-y-auto space-y-4 px-2 pb-24 flex flex-col">
+                {chats.map((chat) => (
+                  chatStep >= chat.id && (
+                    <div key={chat.id} className={`flex w-full mb-2 ${chat.side === 'right' ? 'justify-end' : chat.side === 'left' ? 'justify-start' : 'justify-center'} animate-pop-in`}>
+                      {chat.type === 'system' ? (
+                        <div className="bg-gray-200 text-gray-500 text-xs px-3 py-1 rounded-full animate-pulse italic">
+                          {chat.text}
+                        </div>
+                      ) : chat.type === 'thought' ? (
+                        <div className="text-gray-400 text-sm italic border border-dashed border-gray-300 px-3 py-1 rounded-full">
+                          {chat.text}
+                        </div>
+                      ) : (
+                        <div className={`max-w-[75%] p-4 rounded-2xl shadow-sm text-sm font-body ${chat.side === 'right' ? 'bg-blue-600 text-white rounded-br-none' : 'bg-white text-gray-800 border border-gray-200 rounded-bl-none'}`}>
+                          {chat.text}
+                        </div>
+                      )}
+                    </div>
+                  )
+                ))}
+              </div>
+              {chatStep >= 10 && (
+                 <div className="absolute bottom-10 animate-bounce w-full flex justify-center">
+                    <button 
+                      onClick={handleNextPage}
+                      className="bg-green-500 text-white px-8 py-4 rounded-full font-bold shadow-xl flex items-center gap-2 transform hover:scale-105 transition"
+                    >
+                      <Phone className="w-5 h-5" /> Connect Call
+                    </button>
+                 </div>
+              )}
+            </div>
+          );
+        };
+
+        // 4. The Call
+        const TimeMachine = () => {
+          const [phase, setPhase] = useState(0); 
+          const [displayTime, setDisplayTime] = useState("20:00");
+          const [visibleChats, setVisibleChats] = useState([]);
+          
+          const [eveningOp, setEveningOp] = useState(1);
+          const [nightOp, setNightOp] = useState(0);
+          const [dawnOp, setDawnOp] = useState(0);
+
+          const messages = [
+            { t: "20:30", msg: "Hey... nice to finally talk.", s: "left" },
+            { t: "21:15", msg: "I love your voice, it's so calming.", s: "right" },
+            { t: "22:30", msg: "We both love stars! That's rare. ✨", s: "left" },
+            { t: "23:45", msg: "Fuck rules. I genuinely like you so much already.", s: "right" },
+            { t: "00:30", msg: "You are really beautiful, inside and out.", s: "right" },
+            { t: "01:15", msg: "I can't believe it's this late. I never want to hang up.", s: "left" },
+            { t: "02:00", msg: "I think I'm falling for you.", s: "right" },
+            { t: "03:00", msg: "I love you. I really do.", s: "right" },
+            { t: "03:45", msg: "My intuition says we are meant to be. Forever.", s: "left" },
+          ];
+
+          const startTalking = () => {
+            setPhase(1);
+            let h = 20, m = 0;
+            const interval = setInterval(() => {
+              m += 10;
+              if (m >= 60) { m = 0; h++; }
+              if (h >= 24) h = 0;
+              
+              const tStr = `${h < 10 ? '0'+h : h}:${m < 10 ? '0'+m : m}`;
+              setDisplayTime(tStr);
+
+              if (h >= 20 && h < 22) { setEveningOp(1); setNightOp(0); setDawnOp(0); }
+              else if (h === 22) { setEveningOp(0.5); setNightOp(0.5); }
+              else if (h >= 23 || h < 2) { setEveningOp(0); setNightOp(1); setDawnOp(0); }
+              else if (h === 2) { setNightOp(0.8); setDawnOp(0.2); }
+              else if (h === 3) { setNightOp(0.5); setDawnOp(0.5); }
+              else if (h >= 4) { setNightOp(0); setDawnOp(1); }
+
+              const found = messages.find(item => item.t === tStr);
+              if (found) setVisibleChats(prev => [...prev, found]);
+
+              if (h === 4 && m === 30) {
+                clearInterval(interval);
+                setPhase(2);
+              }
+            }, 150);
+          };
+
+          return (
+            <div id="section-call" className="section text-white flex flex-col items-center relative overflow-hidden">
+              <div className="absolute inset-0 bg-gradient-to-b from-indigo-900 to-slate-900 transition-opacity duration-1000" style={{ opacity: eveningOp }}></div>
+              <div className="absolute inset-0 bg-gradient-to-b from-black to-gray-900 transition-opacity duration-1000" style={{ opacity: nightOp }}></div>
+              <div className="absolute inset-0 bg-gradient-to-b from-purple-900 via-orange-900 to-orange-500 transition-opacity duration-1000" style={{ opacity: dawnOp }}></div>
+
+              <div className="absolute inset-0 pointer-events-none">
+                <Moon className={`absolute top-10 right-10 w-20 h-20 text-gray-200 transition-all duration-[2000ms] ${phase === 2 ? 'opacity-0 translate-y-20' : 'opacity-80'}`} />
+                <Sun className={`absolute bottom-0 left-10 w-40 h-40 text-yellow-300 transition-all duration-[2000ms] ${phase === 2 ? 'translate-y-[-50px] opacity-100' : 'translate-y-[200px] opacity-0'}`} />
+                <div className={`absolute inset-0 transition-opacity duration-[2000ms] ${dawnOp > 0.5 ? 'opacity-0' : 'opacity-100'}`}>
+                  {[...Array(50)].map((_,i) => (
+                     <div key={i} className="absolute bg-white rounded-full w-1 h-1" style={{ top: Math.random()*100+'%', left: Math.random()*100+'%' }}></div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="z-10 w-full flex flex-col items-center h-full pt-20 p-4">
+                {phase === 0 ? (
+                  <div className="text-center mt-20">
+                    <h2 className="font-head text-4xl mb-6">Jan 8th, 8:00 PM</h2>
+                    <button onClick={startTalking} className="bg-white text-indigo-900 px-8 py-3 rounded-full font-bold shadow-lg animate-pulse hover:bg-indigo-50 transition">Start Call</button>
+                  </div>
+                ) : (
+                  <>
+                    <div className="fixed top-24 bg-black/40 backdrop-blur-md px-6 py-2 rounded-full border border-white/20 font-mono text-3xl font-bold shadow-xl z-20">
+                      {displayTime}
+                    </div>
+                    <div className="w-full max-w-md mt-12 space-y-6 pb-32">
+                      {visibleChats.map((c, i) => (
+                        <div key={i} className={`flex ${c.s === 'right' ? 'justify-end' : 'justify-start'} animate-fade-in`}>
+                          <div className={`p-4 rounded-2xl max-w-[85%] text-sm font-body shadow-md ${c.s === 'right' ? 'bg-indigo-600 text-white' : 'bg-gray-800 text-gray-100'}`}>{c.msg}</div>
+                        </div>
+                      ))}
+                    </div>
+                  </>
+                )}
+                
+                {phase === 2 && (
+                  <div className="absolute inset-0 bg-pink-500/90 flex flex-col items-center justify-center animate-fade-in z-30 text-center p-6 backdrop-blur-sm">
+                    <Heart className="w-24 h-24 text-white animate-beat mb-4" fill="white" />
+                    <h1 className="font-head text-5xl font-bold mb-2">We Got Committed</h1>
+                    <p className="font-body text-xl">And exchanged our hearts forever.</p>
+                    <p className="mt-4 opacity-80 text-sm">04:30 AM • Jan 9th</p>
+                  </div>
+                )}
+              </div>
+            </div>
+          );
+        };
+
+        // 5. Pearl Angel
+        const PearlAngel = () => {
+          const [words, setWords] = useState([]);
+
+          const handleClick = (e) => {
+            const list = ["GORGEOUS", "STUNNING", "MY ANGEL", "PERFECT", "DIVINE", "PRETTY"];
+            const text = list[Math.floor(Math.random() * list.length)];
+            const id = Date.now();
+            setWords(prev => [...prev, { id, text, x: e.clientX, y: e.clientY }]);
+            setTimeout(() => setWords(prev => prev.filter(w => w.id !== id)), 3000);
+          };
+
+          return (
+            <div className="section bg-gray-50 flex flex-col items-center justify-center relative overflow-hidden" onClick={handleClick}>
+               <div className="absolute inset-0 bg-gradient-to-br from-white to-pink-50"></div>
+               <div className="z-10 text-center pointer-events-none">
+                  <h2 className="font-head text-4xl text-gray-800 mb-8">The Pearl Angel</h2>
+                  
+                  <div className="pointer-events-auto inline-block relative group cursor-pointer transition-transform hover:scale-105 duration-500">
+                     {/* Photo Frame */}
+                     <div className="w-72 h-[450px] bg-white p-4 shadow-2xl rotate-[-2deg] group-hover:rotate-0 transition duration-500 flex flex-col">
+                       <div className="flex-1 bg-gray-200 flex items-center justify-center overflow-hidden relative">
+                         <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/10"></div>
+                         <Gem className="w-24 h-24 text-pink-300 drop-shadow-lg" />
+                         {/* Flash Effect */}
+                         <div className="absolute inset-0 bg-white opacity-0 group-hover:opacity-30 transition duration-200"></div>
+                       </div>
+                       <div className="h-16 flex flex-col justify-center items-center mt-2">
+                         <p className="font-hand text-2xl text-gray-800">Your Ramp Walk</p>
+                         <p className="font-mono text-xs text-gray-400 mt-1">Jan 10, 2026</p>
+                       </div>
+                     </div>
+                     
+                     {/* Sticker */}
+                     <div className="absolute -top-4 -right-4 bg-yellow-300 text-yellow-900 px-4 py-2 rounded-full font-bold shadow-lg rotate-12 animate-pulse">
+                       My Favorite!
+                     </div>
+                  </div>
+
+                  <p className="mt-12 text-gray-500 font-body italic text-lg max-w-md mx-auto">
+                    "I saw this and my heart stopped. You became my Pearl Angel forever."
+                  </p>
+               </div>
+               
+               {words.map(w => (
+                 <div key={w.id} className="floating-word" style={{ left: w.x - 50, top: w.y - 50 }}>{w.text}</div>
+               ))}
+            </div>
+          );
+        };
+
+        // 6. World Tour (Updated to 7 Wonders Scrolling)
+        const WorldTour = () => {
+          const [riding, setRiding] = useState(false);
+
+          return (
+            <div className="section relative overflow-hidden flex flex-col items-center justify-center bg-blue-50 select-none">
+              
+              <h2 className="font-head text-3xl md:text-4xl text-gray-800 mb-8 tracking-wide text-center">
+                <span className="block text-xl text-gray-500 mb-2 font-body">Our Goal</span>
+                Career • Money • Travel
+              </h2>
+
+              {/* The Viewport Box */}
+              <div className="relative w-full max-w-3xl h-80 bg-sky-300 rounded-3xl shadow-2xl overflow-hidden border-[6px] border-white z-10 group">
+                
+                {/* 1. Sky & Sun */}
+                <div className="absolute inset-0 bg-gradient-to-b from-sky-400 to-sky-200"></div>
+                <div className="absolute top-6 right-8">
+                   <Sun className="text-yellow-300 w-16 h-16 animate-spin-slow opacity-90" />
+                </div>
+
+                {/* 2. Soft Floating Goals Icons */}
+                <div className="absolute inset-0 pointer-events-none">
+                   <Briefcase className="absolute top-10 left-10 text-white w-12 h-12 soft-anim" />
+                   <DollarSign className="absolute top-20 right-1/3 text-white w-10 h-10 soft-anim" style={{animationDelay: '1s'}} />
+                   <Plane className="absolute top-5 right-20 text-white w-8 h-8 soft-anim" style={{animationDelay: '2s'}} />
+                </div>
+
+                {/* 3. Clouds (Slow Parallax) */}
+                <div className={`absolute top-0 left-0 w-[200%] h-full flex pointer-events-none bg-scroll-slow`} 
+                     style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg width=\'100\' height=\'100\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cpath d=\'M10 50 Q25 30 40 50 T70 50 T90 50\' stroke=\'white\' fill=\'none\' stroke-width=\'5\' opacity=\'0.5\'/%3E%3C/svg%3E")', backgroundSize: '200px 200px', backgroundRepeat: 'repeat-x', animationPlayState: riding ? 'running' : 'paused' }}></div>
+
+                {/* 4. Landmarks (Medium Speed) - ALL 8 WONDERS */}
+                <div className={`absolute bottom-16 left-0 w-[200%] h-40 flex items-end ${riding ? 'running' : 'paused'}`}
+                     style={{ animation: 'scrollLeft 30s linear infinite', animationPlayState: riding ? 'running' : 'paused', width: '200%' }}>
+                   
+                   {/* Loop 1 */}
+                   <div className="flex justify-around items-end w-1/2 px-10">
+                      {/* Great Wall */}
+                      <svg viewBox="0 0 120 50" className="h-16 w-auto fill-gray-600 opacity-60"><path d="M0 50 V20 L20 15 V25 L40 20 V10 L60 5 V20 L80 15 V25 L100 20 V50 Z M20 25 V50 M40 20 V50 M60 20 V50 M80 25 V50" /><rect x="35" y="5" width="10" height="15" /><rect x="55" y="0" width="10" height="20" /></svg>
+                      {/* Petra */}
+                      <svg viewBox="0 0 60 80" className="h-20 w-auto fill-gray-600 opacity-60"><path d="M5 80 V20 H55 V80 M5 20 L30 5 L55 20" /><rect x="20" y="30" width="20" height="50" rx="10" fill="white" opacity="0.3" /><rect x="10" y="20" width="5" height="60" /><rect x="45" y="20" width="5" height="60" /></svg>
+                      {/* Colosseum */}
+                      <svg viewBox="0 0 100 50" className="h-14 w-auto fill-gray-600 opacity-60"><path d="M0 50 L10 10 H90 L100 50 Z" /><rect x="20" y="20" width="10" height="15" rx="5" fill="white" opacity="0.3" /><rect x="45" y="20" width="10" height="15" rx="5" fill="white" opacity="0.3" /><rect x="70" y="20" width="10" height="15" rx="5" fill="white" opacity="0.3" /></svg>
+                      {/* Chichen Itza */}
+                      <svg viewBox="0 0 80 60" className="h-16 w-auto fill-gray-600 opacity-60"><path d="M10 60 L20 40 L15 40 L25 20 L20 20 L30 5 H50 L60 20 L55 20 L65 40 L60 40 L70 60 Z" /><rect x="35" y="45" width="10" height="15" fill="white" opacity="0.3" /></svg>
+                      {/* Machu Picchu */}
+                      <svg viewBox="0 0 100 70" className="h-20 w-auto fill-gray-600 opacity-60"><path d="M0 70 L30 20 L50 40 L70 10 L100 70 Z" /><rect x="35" y="30" width="10" height="10" /><rect x="55" y="20" width="8" height="8" /></svg>
+                      {/* Taj Mahal */}
+                      <svg viewBox="0 0 80 80" className="h-20 w-auto fill-gray-600 opacity-60"><path d="M20 80 V40 Q20 30 40 10 Q60 30 60 40 V80" /><rect x="35" y="50" width="10" height="30" fill="white" opacity="0.3" /><rect x="5" y="30" width="5" height="50" /><rect x="70" y="30" width="5" height="50" /></svg>
+                      {/* Christ Redeemer */}
+                      <svg viewBox="0 0 60 80" className="h-24 w-auto fill-gray-600 opacity-60"><rect x="25" y="20" width="10" height="60" /><rect x="5" y="25" width="50" height="8" rx="2" /><circle cx="30" cy="18" r="6" /></svg>
+                      {/* Great Pyramid of Giza */}
+                      <svg viewBox="0 0 100 60" className="h-16 w-auto fill-gray-600 opacity-60"><path d="M10 60 L50 0 L90 60" /><path d="M60 60 L80 30 L100 60" opacity="0.5" /></svg>
+                   </div>
+
+                   {/* Loop 2 (Duplicate) */}
+                   <div className="flex justify-around items-end w-1/2 px-10">
+                      <svg viewBox="0 0 120 50" className="h-16 w-auto fill-gray-600 opacity-60"><path d="M0 50 V20 L20 15 V25 L40 20 V10 L60 5 V20 L80 15 V25 L100 20 V50 Z M20 25 V50 M40 20 V50 M60 20 V50 M80 25 V50" /><rect x="35" y="5" width="10" height="15" /><rect x="55" y="0" width="10" height="20" /></svg>
+                      <svg viewBox="0 0 60 80" className="h-20 w-auto fill-gray-600 opacity-60"><path d="M5 80 V20 H55 V80 M5 20 L30 5 L55 20" /><rect x="20" y="30" width="20" height="50" rx="10" fill="white" opacity="0.3" /><rect x="10" y="20" width="5" height="60" /><rect x="45" y="20" width="5" height="60" /></svg>
+                      <svg viewBox="0 0 100 50" className="h-14 w-auto fill-gray-600 opacity-60"><path d="M0 50 L10 10 H90 L100 50 Z" /><rect x="20" y="20" width="10" height="15" rx="5" fill="white" opacity="0.3" /><rect x="45" y="20" width="10" height="15" rx="5" fill="white" opacity="0.3" /><rect x="70" y="20" width="10" height="15" rx="5" fill="white" opacity="0.3" /></svg>
+                      <svg viewBox="0 0 80 60" className="h-16 w-auto fill-gray-600 opacity-60"><path d="M10 60 L20 40 L15 40 L25 20 L20 20 L30 5 H50 L60 20 L55 20 L65 40 L60 40 L70 60 Z" /><rect x="35" y="45" width="10" height="15" fill="white" opacity="0.3" /></svg>
+                      <svg viewBox="0 0 100 70" className="h-20 w-auto fill-gray-600 opacity-60"><path d="M0 70 L30 20 L50 40 L70 10 L100 70 Z" /><rect x="35" y="30" width="10" height="10" /><rect x="55" y="20" width="8" height="8" /></svg>
+                      <svg viewBox="0 0 80 80" className="h-20 w-auto fill-gray-600 opacity-60"><path d="M20 80 V40 Q20 30 40 10 Q60 30 60 40 V80" /><rect x="35" y="50" width="10" height="30" fill="white" opacity="0.3" /><rect x="5" y="30" width="5" height="50" /><rect x="70" y="30" width="5" height="50" /></svg>
+                      <svg viewBox="0 0 60 80" className="h-24 w-auto fill-gray-600 opacity-60"><rect x="25" y="20" width="10" height="60" /><rect x="5" y="25" width="50" height="8" rx="2" /><circle cx="30" cy="18" r="6" /></svg>
+                      <svg viewBox="0 0 100 60" className="h-16 w-auto fill-gray-600 opacity-60"><path d="M10 60 L50 0 L90 60" /><path d="M60 60 L80 30 L100 60" opacity="0.5" /></svg>
+                   </div>
+                </div>
+
+                {/* 5. Road (Fast Speed) */}
+                <div className="absolute bottom-0 w-full h-16 bg-gray-700 border-t-4 border-gray-500 overflow-hidden">
+                   <div className={`w-[200%] h-full flex items-center ${riding ? 'running' : 'paused'}`} 
+                        style={{ animation: 'scrollLeft 1s linear infinite', animationPlayState: riding ? 'running' : 'paused' }}>
+                      <div className="w-1/2 flex justify-around">
+                         {[...Array(8)].map((_, i) => <div key={i} className="w-24 h-2 bg-white skew-x-[-20deg]"></div>)}
+                      </div>
+                      <div className="w-1/2 flex justify-around">
+                         {[...Array(8)].map((_, i) => <div key={i} className="w-24 h-2 bg-white skew-x-[-20deg]"></div>)}
+                      </div>
+                   </div>
+                </div>
+
+                {/* 6. The Bike & Couple (Detailed SVG) */}
+                <div className={`absolute bottom-4 left-1/2 transform -translate-x-1/2 z-20 ${riding ? 'engine-on' : ''}`}>
+                   <svg width="220" height="160" viewBox="0 0 220 160">
+                      {/* Wheels */}
+                      <g className={riding ? 'animate-spin' : ''} transform-origin="45 135">
+                         <circle cx="45" cy="135" r="22" fill="#1f2937" stroke="#9ca3af" strokeWidth="3" />
+                         <circle cx="45" cy="135" r="8" fill="#d1d5db" />
+                      </g>
+                      <g className={riding ? 'animate-spin' : ''} transform-origin="175 135">
+                         <circle cx="175" cy="135" r="22" fill="#1f2937" stroke="#9ca3af" strokeWidth="3" />
+                         <circle cx="175" cy="135" r="8" fill="#d1d5db" />
+                      </g>
+
+                      {/* Scooter Body */}
+                      <path d="M45 135 L80 120 L160 120 L175 135 L160 100 L140 100 L130 50 L110 50 L100 100 L60 100 Z" fill="#e11d48" /> 
+                      <path d="M130 50 L125 30 L155 30" stroke="#1f2937" strokeWidth="4" fill="none" /> {/* Handlebars */}
+                      <path d="M160 100 L180 90 L180 110" fill="#e11d48" /> {/* Rear Fender */}
+                      <rect x="70" y="100" width="60" height="20" fill="#9f1239" rx="5" /> {/* Seat */}
+
+                      {/* Riders */}
+                      {/* Guy (Driver) */}
+                      <g transform="translate(100, 50)">
+                         <path d="M0 50 L0 20 Q0 0 20 0 T40 20 L40 50" fill="#1f2937" /> {/* Body */}
+                         <circle cx="20" cy="-10" r="14" fill="#fca5a5" /> {/* Head */}
+                         <path d="M5 -15 Q20 -30 35 -15" fill="none" stroke="#1f2937" strokeWidth="8" strokeLinecap="round" /> {/* Hair */}
+                      </g>
+
+                      {/* Girl (Passenger - Hugging) */}
+                      <g transform="translate(60, 55)">
+                         <path d="M5 45 L10 20 Q10 0 30 0 T50 20 L45 45" fill="#ec4899" /> {/* Body */}
+                         <circle cx="30" cy="-5" r="13" fill="#fca5a5" /> {/* Head */}
+                         <path d="M10 -10 Q30 -35 50 -5" fill="none" stroke="#be185d" strokeWidth="8" strokeLinecap="round" /> {/* Long Hair */}
+                         <path d="M45 25 L65 25" stroke="#ec4899" strokeWidth="6" strokeLinecap="round" /> {/* Arm hugging */}
+                      </g>
+
+                      {/* Wind Effects */}
+                      {riding && (
+                         <g className="animate-pulse" stroke="white" strokeWidth="2" opacity="0.6">
+                            <line x1="200" y1="20" x2="240" y2="20" />
+                            <line x1="190" y1="50" x2="230" y2="50" />
+                            <line x1="210" y1="80" x2="250" y2="80" />
+                         </g>
+                      )}
+                   </svg>
+                </div>
+
+              </div>
+
+              {/* Button */}
+              <button 
+                onMouseDown={() => setRiding(true)}
+                onMouseUp={() => setRiding(false)}
+                onTouchStart={() => setRiding(true)}
+                onTouchEnd={() => setRiding(false)}
+                className="mt-8 bg-gradient-to-r from-yellow-400 to-orange-500 text-white font-bold py-4 px-12 rounded-full shadow-2xl transform transition active:scale-95 flex items-center gap-3 text-xl border-4 border-white select-none hover:shadow-orange-300/50"
+              >
+                <Zap className="w-6 h-6" fill="white" />
+                {riding ? "Vrooom..." : "Start Engine"}
+              </button>
+
+            </div>
+          );
+        };
+
+        // 7. Red Room (Refined: Embers, Blindfold, Intense)
+        const RedRoom = () => {
+          const [modal, setModal] = useState(null);
+
+          const options = [
+            { 
+              id: 1, 
+              icon: <Anchor className="w-8 h-8" />, 
+              title: "Handcuffs", 
+              text: "Wrists bound. Metal cold against skin. You are completely vulnerable. I will trace every inch of you, and you can't move. You can only feel."
+            },
+            { 
+              id: 2, 
+              icon: <Eye className="w-8 h-8" />, 
+              title: "Blindfold", 
+              text: "Sight taken away. Every touch becomes amplified. You don't know where my hands or lips will be next. Pure anticipation."
+            },
+            { 
+              id: 3, 
+              icon: <div className="text-2xl">🪢</div>, 
+              title: "Rope", 
+              text: "The feeling of being secured. Knots that hold you tight. Giving up all control to me, trusting me to guide you through the intensity."
+            },
+            { 
+              id: 4, 
+              icon: <Feather className="w-8 h-8" />, 
+              title: "Sensation", 
+              text: "Softness against heat. A feather, a fingertip, a breath. Teasing you until you are begging for more pressure, more friction."
+            },
+            { 
+              id: 5, 
+              icon: <div className="text-2xl">🪑</div>, 
+              title: "The Chair", 
+              text: "You sit. I stand. You watch. You wait. A silent exchange of power where you must endure every pleasure I give you without moving."
+            },
+            { 
+              id: 6, 
+              icon: <Zap className="w-8 h-8" />, 
+              title: "Toys", 
+              text: "Pushing you to the edge. Denying release. Making you tremble and shake until you are completely undone."
+            }
+          ];
+
+          return (
+            <div className="section bg-red-room text-red-50 flex flex-col items-center justify-center p-6 relative">
+              {/* Atmosphere */}
+              <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/black-linen.png')] opacity-40"></div>
+              
+              {/* Floating Embers */}
+              <div className="absolute inset-0 overflow-hidden pointer-events-none">
+                {[...Array(20)].map((_, i) => (
+                   <div key={i} className="ember" style={{ left: Math.random()*100+'%', animationDuration: (Math.random()*5+5)+'s', animationDelay: Math.random()*5+'s' }}></div>
+                ))}
+              </div>
+
+              <h2 className="font-head text-6xl text-red-600 font-bold mb-2 tracking-widest uppercase z-10 drop-shadow-[0_0_20px_rgba(220,38,38,1)]">Intimacy</h2>
+              <p className="font-body text-red-300/60 mb-8 text-center text-sm z-10 tracking-[0.3em] uppercase">"Surrender Control"</p>
+
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-4 w-full max-w-lg z-10">
+                 {options.map(opt => (
+                   <button 
+                     key={opt.id} 
+                     onClick={() => setModal(opt)}
+                     className="bg-black/60 border border-red-900/50 p-6 rounded-xl flex flex-col items-center gap-2 hover:bg-red-900/30 hover:border-red-500 hover:scale-105 transition duration-500 shadow-lg backdrop-blur-sm group"
+                   >
+                     <div className="text-red-700 group-hover:text-red-500 transition duration-300 group-hover:animate-pulse">{opt.icon}</div>
+                     <span className="font-head uppercase tracking-widest text-xs text-red-200/80">{opt.title}</span>
+                   </button>
+                 ))}
+              </div>
+
+              {modal && (
+                <div className="absolute inset-0 z-50 bg-black/95 flex items-center justify-center p-8 animate-fade-in backdrop-blur-xl">
+                   <div className="border-t-4 border-b-4 border-red-800 py-12 px-6 max-w-md text-center relative">
+                     <button onClick={() => setModal(null)} className="absolute top-4 right-4 text-gray-600 hover:text-red-500 transition"><X /></button>
+                     <h3 className="font-head text-4xl text-red-600 uppercase tracking-widest mb-6 drop-shadow-lg">{modal.title}</h3>
+                     <p className="font-body text-gray-300 text-lg leading-loose italic tracking-wide">
+               "{modal.text}"
+                     </p>
+                   </div>
+                </div>
+              )}
+            </div>
+          );
+        };
+
+        // 8. Promise (High Contrast & Biometric Scan)
+        const PromiseSection = () => {
+          const [holding, setHolding] = useState(false);
+          const [accepted, setAccepted] = useState(false);
+          const timer = useRef(null);
+
+          const start = () => {
+            setHolding(true);
+            timer.current = setTimeout(() => setAccepted(true), 2000);
+          };
+          const end = () => {
+            setHolding(false);
+            clearTimeout(timer.current);
+          };
+
+          return (
+            <div className="section bg-gradient-to-t from-pink-200 via-white to-white flex flex-col items-center justify-center p-8 text-center relative overflow-hidden">
+              {accepted && (
+                <div className="absolute inset-0 pointer-events-none">
+                   {[...Array(30)].map((_, i) => (
+                     <Heart key={i} className="absolute text-pink-500 animate-bounce" 
+                       style={{ left: Math.random()*100+'%', top: Math.random()*100+'%', animationDuration: Math.random()*2+1+'s' }} />
+                   ))}
+                </div>
+              )}
+              
+              {!accepted ? (
+                <div className="z-10 animate-fade-in flex flex-col items-center w-full max-w-lg">
+                   <h2 className="font-head text-5xl text-gray-800 mb-6">Official Confirmation</h2>
+                   <p className="font-body text-gray-500 mb-10 max-w-md">
+                     Press and hold to admit that we are meant to be. <br/> Seal our fate.
+                   </p>
+                   
+                   <button 
+                     onMouseDown={start} onMouseUp={end} onTouchStart={start} onTouchEnd={end}
+                     className={`w-32 h-32 rounded-full border-4 border-pink-300 flex items-center justify-center transition-all duration-300 relative overflow-hidden ${holding ? 'scale-90 bg-pink-100 border-pink-600 shadow-[0_0_30px_rgba(236,72,153,0.6)]' : 'bg-white shadow-xl'}`}
+                   >
+                     <Fingerprint className={`w-16 h-16 ${holding ? 'text-pink-600' : 'text-gray-300'} z-10 relative`} />
+                     {holding && <div className="scan-line top-0"></div>}
+                   </button>
+                   
+                   <div className="mt-8 flex items-center gap-2">
+                      <div className="w-2 h-2 bg-pink-500 rounded-full animate-pulse"></div>
+                      <p className="text-xs text-pink-500 font-bold uppercase tracking-[0.3em]">Biometric Scan Required</p>
+                   </div>
+                </div>
+              ) : (
+                <div className="z-10 animate-pop-in flex flex-col items-center w-full">
+                   <div className="w-40 h-40 bg-pink-50 rounded-full flex items-center justify-center mb-6 shadow-inner border border-pink-100">
+                     <Crown className="w-20 h-20 text-pink-500 fill-current animate-bounce" />
+                   </div>
+                   
+                   {/* High Contrast Box */}
+                   <div className="bg-white/80 backdrop-blur-md p-8 rounded-3xl shadow-2xl border border-white/50 w-full max-w-md">
+                       <h1 className="font-head text-5xl md:text-6xl text-gray-900 mb-4 bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-pink-600 font-bold leading-tight">
+                         Officially A Couple.
+                       </h1>
+                       <p className="font-body text-xl text-gray-700 mb-8 font-medium">You are mine. I am yours.</p>
+                       
+                       <div className="bg-pink-50 px-8 py-6 rounded-2xl border-2 border-pink-300 transform -rotate-1 hover:rotate-0 transition duration-300 shadow-sm">
+                          <p className="font-hand text-4xl text-pink-600">Let's go for a date then?</p>
+                          <div className="mt-4 pt-4 border-t border-pink-200 text-xs text-gray-400 uppercase tracking-widest">
+                            Screenshot & Send
+                          </div>
+                       </div>
+                   </div>
+                </div>
+              )}
+            </div>
+          );
+        };
+
+        const App = () => {
+          return (
+            <div className="scroll-container bg-black">
+              <style>{customStyles}</style>
+              <Intro />
+              <HingeStory />
+              <TheChase />
+              <TimeMachine />
+              <PearlAngel />
+              <WorldTour />
+              <RedRoom />
+              <PromiseSection />
+            </div>
+          );
+        }
+
+        const root = createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
+
+
